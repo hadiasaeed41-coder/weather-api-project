@@ -5,12 +5,15 @@ def get_location(city):
     "name": city,
     "count": 1
   }
-  response = requests.get(url , params=params)
-  data=response.json()
-  if "results" not in data:
+  try:
+   response = requests.get(url , params=params)
+   data=response.json()
+   if "results" not in data:
         return None
-  location=data["results"][0]
-  return location
+   location=data["results"][0]
+   return location
+  except:
+   return None
 
 def get_weather(latitude, longitude):
  weather_url = "https://api.open-meteo.com/v1/forecast"
@@ -19,25 +22,42 @@ def get_weather(latitude, longitude):
     "longitude":longitude,
     "current":"temperature_2m,relative_humidity_2m,wind_speed_10m"
  }
- weather_response=requests.get(weather_url , params=weather_params)
- weather_data=weather_response.json()
- return weather_data
+ try:
+  weather_response=requests.get(weather_url , params=weather_params)
+  weather_data=weather_response.json()
+  return weather_data
+ except:
+  return None
+while True: 
+ city = input("Enter city name: ")
+ if city =="":
+  print("please enter city name")
+  continue
+ location = get_location(city)
 
-city = input("Enter city name: ")
-
-location = get_location(city)
-
-if location:
+ if location:
 
     weather = get_weather(
         location["latitude"],
         location["longitude"]
     )
-
-    print(" City:", location["name"])
-    print(" Temperature:", weather["current"]["temperature_2m"], "°C")
-    print(" Humidity:", weather["current"]["relative_humidity_2m"], "%")
-    print(" Wind Speed:", weather["current"]["wind_speed_10m"], "km/h")
-
-else:
+    if weather:
+     print("\n------ Weather Report ------")
+     print("City:", location["name"])
+     print("Country:", location["country"])
+     print("Temperature:", weather["current"]["temperature_2m"], "°C")
+     print("Humidity:", weather["current"]["relative_humidity_2m"], "%")
+     print("Wind Speed:", weather["current"]["wind_speed_10m"], "km/h")
+     print("----------------------------")
+    else:
+      print("Weather not available")
+ else:
     print(" City not found!")
+
+
+
+ again = input("\nSearch another city? (yes/no): ")
+ if again.lower() != "yes":
+    print("Thank you!")
+    break
+ 
